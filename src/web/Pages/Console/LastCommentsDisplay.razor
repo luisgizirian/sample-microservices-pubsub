@@ -1,0 +1,23 @@
+﻿<div class="alert alert-secondary mt-4">
+    <span class="oi oi-pencil me-2" aria-hidden="true"></span>
+    <strong>@Title</strong>
+
+    <ul>
+        @foreach (var item in Batch.Elements)
+        {
+            <li>@item.Message</li>
+        }
+    </ul>
+    <button @onclick=@(() => OnRefresh.InvokeAsync())>Refresh</button>
+</div>
+
+@code {
+    @using Web.Infrastructure
+    // Demonstrates how a parent component can supply parameters
+    [Parameter]
+    public string? Title { get; set; }
+    [Parameter]
+    public ContactBatch? Batch { get; set; }
+    [Parameter]
+    public EventCallback<Task> OnRefresh { get; set; }
+}

@@ -1,0 +1,35 @@
+version: '3.6'
+
+services:
+  smps.redis:
+    image: redis:alpine
+    restart: always
+
+  smps.web:
+    image: ${DOCKER_REGISTRY-}smpsweb
+    container_name: smps.web
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    depends_on:
+      - smps.common.api
+      - smps.redis
+    restart: always
+
+  smps.common.api:
+    image: ${DOCKER_REGISTRY-}smpscommonapi
+    container_name: smps.common.api
+    build:
+      context: .
+      dockerfile: common-api/Dockerfile
+    depends_on:
+      - smps.processors
+    restart: always
+
+  smps.processors:
+    image: ${DOCKER_REGISTRY-}smpsprocessors
+    container_name: smps.processors
+    build:
+      context: .
+      dockerfile: processors/Dockerfile
+    restart: always

@@ -1,0 +1,34 @@
+version: '3.6'
+
+services:
+  smps.redis:
+    ports:
+      - "6379:6379"
+
+  smps.web:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - Redis=smps.redis
+      - CommonApi=http://smps.common.api
+    ports:
+      - "4702:80"
+    volumes:
+      - ~/.aspnet/https:/root/.aspnet/https:ro
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+
+  smps.common.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - Redis=smps.redis
+    ports:
+      - "4701:80"
+    volumes:
+      - ~/.aspnet/https:/root/.aspnet/https:ro
+      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
+  
+  smps.processors:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Redis=smps.redis
