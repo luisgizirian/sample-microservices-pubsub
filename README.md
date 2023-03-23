@@ -1,10 +1,12 @@
-An implementation sample, simulating an actual solution based on
+## Sample informal proposed Redis as PubSub on a Docker Compose C# Microservices
+An implementation sample, prototyping a solution based on:
 
 * Web App (aspnetcore) with embedded React based form
 * Administrative Console (blazor) - integrated into Web App
 * Docker Compose
 * Redis for pub-sub
 * Web API
+* Workers
 
 Flow
 
