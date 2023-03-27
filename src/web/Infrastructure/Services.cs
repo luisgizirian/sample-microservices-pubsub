@@ -80,13 +80,10 @@ public class ContactService : IContactService
             Created = DateTime.UtcNow
         };
 
-        var correlation = Guid.NewGuid();
-
         await Client
             .PostAsync(_basePath, new StringContent(
                 JsonSerializer.Serialize(new
                 {
-                    CorrelationId = correlation,
                     Contact = dto
                 }),
                 Encoding.UTF8, "application/json"))

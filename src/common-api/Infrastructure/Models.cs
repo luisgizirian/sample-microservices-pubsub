@@ -31,7 +31,6 @@ public class ContactModel
 
 public class ContactFormModel
 {
-    public Guid CorrelationId { get; set; }
     public ContactModel Contact { get; set; }
 }
 

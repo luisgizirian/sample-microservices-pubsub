@@ -15,10 +15,13 @@ builder.Services
 builder.Services.AddBlazoredToast();
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<CorrelationIdHandler>();
+
 builder.Services.AddHttpClient("smps.common.api", client =>
     {
         client.BaseAddress = new Uri(builder.Configuration["CommmonApi"] ?? "http://smps.common.api");
-    });
+    }).AddHttpMessageHandler<CorrelationIdHandler>();
+
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IManagementService, ManagementService>();
 

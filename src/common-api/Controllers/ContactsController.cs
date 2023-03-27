@@ -33,7 +33,9 @@ public class ContactsController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            await _contact.AddAsync(model.CorrelationId, model.Contact);
+            var correlationId = Request.Headers["X-Correlation-ID"].FirstOrDefault();
+            _logger.LogInformation($"Request received with correlation ID {correlationId}");
+            await _contact.AddAsync(Guid.Parse(correlationId), model.Contact);
             return Ok();
         }
 
