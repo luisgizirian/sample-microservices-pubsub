@@ -58,7 +58,7 @@ public class ContactService : IContactService
         ContactModel model)
     {
         const string _QUEUE_NAME = "contacts";
-        const string _REPLY_QUEUE = "contacts_events";
+        var _REPLY_CHANNEL = correlation.ToString();
 
         // 1 - Prepare event-message
         var @event = new AddContact
@@ -70,22 +70,30 @@ public class ContactService : IContactService
         var body = Encoding.UTF8.GetBytes(message);
 
         var redispub = _connectionMultiplexer.GetSubscriber();
+        
+        var respSubscription = await redispub.SubscribeAsync(_REPLY_CHANNEL);
+        
         _ = await redispub.PublishAsync(_QUEUE_NAME, body);
-        var result = "unknown";
-        await redispub.SubscribeAsync(_REPLY_QUEUE, async (channel, val) => {
-            var resp = JsonSerializer.Deserialize<CommentAdded>(val, new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
-            if (resp?.CorrelationId == correlation) {
-                result = resp.Status;
-                await redispub.UnsubscribeAsync(channel);
-            }else{
-                _logger.LogInformation($"Discarding {resp?.CorrelationId} as not for us to process.");
-            }
-        });
-        while (result == "unknown") {
-            await Task.Delay(100);
-            _logger.LogInformation("Waiting on forced Synchronicity");
+
+        var response = await this.ProcessResponse(
+            redispub,
+            await respSubscription.ReadAsync(),
+            _REPLY_CHANNEL);
+        
+        _logger.LogInformation($"Ready to continue... Final status: {response}");
+    }
+
+    private async Task<string> ProcessResponse(ISubscriber redispub, ChannelMessage val, string challenge)
+    {
+        var resp = JsonSerializer.Deserialize<CommentAdded>(val.Message, new JsonSerializerOptions { PropertyNameCaseInsensitive = true});
+        
+        if (val.Channel != challenge) {
+            _logger.LogInformation($"Discarding {resp?.CorrelationId} as is not for us to process.");
+            return "disposed";
         }
-        _logger.LogInformation("Ready to continue...");
+        
+        await redispub.UnsubscribeAsync(challenge);
+        return resp?.Status ?? "unknown";
     }
     #endregion
 }

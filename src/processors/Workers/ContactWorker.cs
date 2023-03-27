@@ -48,7 +48,7 @@ public class ContactWorker : BackgroundService
 
     private async Task AddContact(AddContact e)
     {
-        const string _REPLY_QUEUE = "contacts_events";
+        var _REPLY_QUEUE = e.CorrelationId.ToString();
 
         // Let's simulate some delay. Optional (please comment it after testing)
         await Task.Delay(3000);
